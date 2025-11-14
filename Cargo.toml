@@ -1,0 +1,9 @@
+[workspace]
+members = [
+    "broker",
+    "worker",
+    "sdk",
+    "common"
+]
+
+resolver = "2"

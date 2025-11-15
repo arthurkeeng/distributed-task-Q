@@ -6,4 +6,15 @@ members = [
     "common"
 ]
 
+
+[workspace.dependencies]
+# Shared dependencies across all crates
+tokio = { version = "1.41", features = ["full"] }
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+uuid = { version = "1.2", features = ["v4" , "serde"] }
+async-trait = "0.1"
+reqwest = { version = "0.12", features = ["json", "rustls-tls"] }
+chrono = {version = "0.4" , features = ["serde"]}
+
 resolver = "2"

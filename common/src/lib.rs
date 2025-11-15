@@ -1,4 +1,5 @@
 use serde::{Serialize , Deserialize};
+use serde_json::Value;
 use uuid::Uuid;
 use chrono::{DateTime, Utc};
 
@@ -61,6 +62,29 @@ impl Task{
     }
 
 }
+
+
+#[derive(Debug, Clone, Serialize , Deserialize)]
+pub struct CreateTaskResponse{
+    pub id :Uuid , 
+    pub status : TaskStatus
+}
+
+#[derive(Debug, Clone, Serialize , Deserialize)]
+pub struct GetTaskResponse{
+    pub task : Task
+}
+#[derive(Debug, Clone, Serialize , Deserialize)]
+pub struct SubmitResultRequest{
+    pub output : Option<Value>,
+    pub error : Option<String>
+}
+
+#[derive(Debug, Clone, Serialize , Deserialize)]
+pub struct SubmitResultResponse{
+    pub status : TaskStatus
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;

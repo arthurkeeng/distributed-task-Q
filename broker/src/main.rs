@@ -4,22 +4,23 @@ use axum::{
     Json , Router , extract::Path, http::StatusCode
 };
 use serde_json::Value;
-use std::{collections::{HashMap , VecDeque} , sync::{Arc, Mutex}};
+use std::{collections::{HashMap , VecDeque} , sync::Arc};
 use uuid::{self, Uuid}; 
 use chrono::Utc;
 use common::{Task, TaskResult, TaskStatus};
 use tokio::sync::Mutex as AsyncMutex;
+mod state;
 #[derive(Clone)]
 struct  AppState{
-    tasks : Arc<Mutex<HashMap<Uuid , Task>>>,
-    queue : Arc<Mutex<VecDeque<Uuid>>>
+    tasks : Arc<AsyncMutex<HashMap<Uuid , Task>>>,
+    queue : Arc<AsyncMutex<VecDeque<Uuid>>>
 }
 
 #[tokio::main]
 async fn main(){
     let state = AppState{
-        tasks: Arc::new(Mutex::new(HashMap::new())),
-        queue :Arc::new(Mutex::new(VecDeque::new()))
+        tasks: Arc::new(AsyncMutex::new(HashMap::new())),
+        queue :Arc::new(AsyncMutex::new(VecDeque::new()))
     };
 
     let app = Router::new()
@@ -50,8 +51,8 @@ async fn create_task(
         .cloned().unwrap_or(Value::Null);
 
     let task = Task::new(task_type, task_payload);
-    state.tasks.lock().unwrap().insert(task.id, task.clone());
-    state.queue.lock().unwrap().push_front(task.id);
+    state.tasks.lock().await.insert(task.id, task.clone());
+    state.queue.lock().await.push_front(task.id);
     Json(task)
 
 }
@@ -59,7 +60,7 @@ async fn get_task(
     axum::extract::State(state) : axum::extract::State<AppState>,
     axum::extract::Path(id) : axum::extract::Path<Uuid>
 ) -> Result<Json<Task> , StatusCode>{
-    let task = state.tasks.lock().unwrap();
+    let task = state.tasks.lock().await;
 
      match task.get(&id){
         Some(t) => Ok(Json(t.clone())), 
@@ -71,10 +72,10 @@ async fn get_next_task(
     axum::extract::State(state) : axum::extract::State<AppState>
 ) -> Result<Json<Task> , StatusCode>{
 
-    let mut queue = state.queue.lock().unwrap();
+    let mut queue = state.queue.lock().await;
 
     if let Some(task_id) = queue.pop_front(){
-        let mut tasks = state.tasks.lock().unwrap();
+        let mut tasks = state.tasks.lock().await;
 
         if let Some(task) = tasks.get_mut(&task_id){
             task.mark_running();
@@ -88,7 +89,7 @@ async fn submit_result(
     Path(id) : Path<Uuid>, 
     Json(result) : Json<TaskResult>
 ) -> Result<StatusCode, StatusCode>{
-    let mut tasks = state.tasks.lock().unwrap();
+    let mut tasks = state.tasks.lock().await;
 
     if let Some(task) = tasks.get_mut(&id){
         if result.error.is_some(){

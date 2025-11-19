@@ -1,5 +1,5 @@
-use axum::{Json, extract::Path, http::StatusCode};
-use common::{Task, TaskResult};
+use axum::{Json, body, extract::Path, http::StatusCode};
+use common::{ SubmitResultRequest, SubmitResultResponse, Task, TaskResult, TaskStatus};
 use serde_json::Value;
 use uuid::Uuid;
 
@@ -10,6 +10,8 @@ pub async fn create_task(
     axum::extract::State(state) : axum::extract::State<AppState>,
     Json(payload) : Json<Value>
 ) -> Json<Task>{
+
+    
     // the payload will be something like 
     // {"task_type" : "", "payload" : ""}
 
@@ -18,7 +20,8 @@ pub async fn create_task(
         .unwrap_or("default_task");
 
     let task_payload = payload.get("payload")
-        .cloned().unwrap_or(Value::Null);
+        .cloned()
+        .unwrap_or(Value::Null);
 
     let task = Task::new(task_type, task_payload);
     state.tasks.lock().await.insert(task.id, task.clone());
@@ -54,22 +57,24 @@ pub async fn get_next_task(
     }
     Err(StatusCode::NO_CONTENT)
 }
+
 pub async fn submit_result(
     axum::extract::State(state) : axum::extract::State<AppState>, 
     Path(id) : Path<Uuid>, 
-    Json(result) : Json<TaskResult>
-) -> Result<StatusCode, StatusCode>{
+    Json(body) : Json<SubmitResultRequest>
+) -> Json<SubmitResultResponse>{
     let mut tasks = state.tasks.lock().await;
 
-    if let Some(task) = tasks.get_mut(&id){
-        if result.error.is_some(){
-            task.mark_failed(result.error.unwrap());
-        }
-        else {
-            task.mark_completed(result.output);
-            
-        }
-        return Ok(StatusCode::OK);
+    let Some(task) = tasks.get_mut(&id)
+    else {
+        return Json(SubmitResultResponse { status: TaskStatus::Failed })
+    };
+
+    if let Some(err) = &body.error{
+        task.mark_failed(err.clone());
     }
-    Err(StatusCode::NOT_FOUND)
+    else{
+        task.mark_completed(body.output.clone());
+    }
+    Json(SubmitResultResponse { status: task.status.clone() })
 }

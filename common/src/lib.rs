@@ -42,7 +42,8 @@ impl Task{
               result: None, 
               created_at: Utc::now(),
                started_at: Utc::now().into(), 
-               completed_at: Utc::now().into() }
+               completed_at: Utc::now().into()
+             }
     }
 
     pub fn mark_running(&mut self){

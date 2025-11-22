@@ -1,4 +1,4 @@
-use crate::handler::{config::WorkerConfig, echo_handler::EchoHandler, registry::HandlerRegistry, worker::Worker};
+use crate::handler::{config::WorkerConfig, echo_handler::EchoHandler, registry::HandlerRegistry, validate_image_handler::ValidateImageHandler, worker::Worker};
 
 
 pub mod handler;
@@ -10,6 +10,7 @@ async fn main() {
 
     let mut registry = HandlerRegistry::new();
     registry.register_handler("echo", EchoHandler);
+    registry.register_handler("validate_image", ValidateImageHandler);
 
     let worker = Worker::new(cfg, registry);
     worker.run().await;

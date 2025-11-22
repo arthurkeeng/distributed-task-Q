@@ -9,13 +9,13 @@ pub struct HandlerResult{
 }
 
 impl HandlerResult{
-    pub fn success(output : Option<Value>) ->Self{
+    pub fn ok(output : Value) ->Self{
         Self{
-            output , error : None
+            output : Some(output), error : None
         }
     }
 
-    pub fn failure (msg: String) -> Self{
+    pub fn err (msg: String) -> Self{
         Self{
             output : None , error: Some(msg)
         }

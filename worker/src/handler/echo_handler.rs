@@ -12,8 +12,8 @@ impl TaskHandler for EchoHandler {
      -> HandlerResult{
         let payload : Value = task.payload.clone();
 
-        HandlerResult::success(Some(json!(
+        HandlerResult::ok(json!(
         {"echoed" : payload}
-        )))
+        ))
     }
 }

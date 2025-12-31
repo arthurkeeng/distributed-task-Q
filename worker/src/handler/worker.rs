@@ -1,9 +1,9 @@
 use std::error;
 
-use common::{SubmitResultRequest, Task};
+use common::{SubmitResultRequest, Task, TaskPayloadSchema};
 use tokio::time::{sleep , Duration};
 
-use crate::handler::{config::WorkerConfig, registry::{HandlerRegistry, HandlerResult}};
+use crate::handler::{config::WorkerConfig, registry::{HandlerRegistry, HandlerResult}, validate_image_handler::{self, ValidateImageHandler}};
 use reqwest::Client;
 
 pub struct Worker{
@@ -22,7 +22,7 @@ impl Worker {
         println!("Worker {} started . Polling broker at {}" , 
             self.config.worker_name , self.config.broker_url
      );
-     
+     self.register_schema().await.expect("Valid schema not passed");
 
      loop{
         if let Err(e) = self.process_once().await{
@@ -73,5 +73,24 @@ impl Worker {
             .await?;
         println!("Sent result for {}", task.id);
         Ok(())
+    }
+
+    async fn register_schema(&self) -> Result<(), reqwest::Error>{
+        // let schema = ValidateImageHandler::schema();
+        for schema in self.schemas(){
+
+            self.client
+                .post(format!("{}/task/set_schema" , self.config.broker_url))
+                .json(&schema)
+                .send()
+                .await?;
+        }
+        Ok(())
+    }
+
+    fn schemas(&self) -> Vec<TaskPayloadSchema>{
+        vec![
+            ValidateImageHandler::schema()
+        ]
     }
 }

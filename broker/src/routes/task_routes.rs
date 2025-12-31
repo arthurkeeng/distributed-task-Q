@@ -11,6 +11,6 @@ pub fn task_routes () -> Router<AppState>{
         .route("/:id/result", post(submit_result))
         .route("/types" , get(list_task_types))
         .route("/types/:task_type/schema" , get(get_payload_schema))
-        .route("/set_schema/:task_type" , post(set_payload_schema))
+        .route("/set_schema" , post(set_payload_schema))
 
 }

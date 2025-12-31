@@ -1,5 +1,7 @@
+use std::collections::HashMap;
+
 use base64::{Engine, engine::general_purpose};
-use common::Task;
+use common::{PayloadField, Task, TaskPayloadSchema};
 use async_trait::async_trait;
 use image::GenericImageView;
 use serde_json::{Value, json};
@@ -15,6 +17,8 @@ pub struct ValidateImageHandler;
 
 #[async_trait]
 impl TaskHandler for ValidateImageHandler{
+
+    
     async fn handle( &self , task : &Task) -> HandlerResult{
         // the image must be encoded in base 64
         let payload = &task.payload;
@@ -58,3 +62,24 @@ impl TaskHandler for ValidateImageHandler{
         ))
     }
 }
+impl ValidateImageHandler{
+    pub fn schema () -> TaskPayloadSchema {
+        TaskPayloadSchema { task_type: "validate_image".to_string(), description: "Validate that a base64 image is real and large enough".to_string(),fields: 
+            HashMap::from([
+                (
+                    "image".to_string(), 
+                    PayloadField {
+                        field_type : common::FieldType::String, 
+                        required : true , 
+                        description : Some("Base 64 Encoded image".to_string()), 
+                        example : Some(json!("1vsdf3409l;a dl...."))
+                    }
+                )
+            ])
+     }
+    }
+
+    
+
+}
+

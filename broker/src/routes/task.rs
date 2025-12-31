@@ -100,14 +100,11 @@ pub async fn get_payload_schema(State(state) : State<AppState>,
 
 
 pub async fn set_payload_schema(State(state) : State<AppState> , 
-    Path(task_type ) : Path<String> , Json(body) : Json<TaskPayloadSchema>
-    ) ->Result<Json<TaskPayloadSchema> , StatusCode>{
+     Json(schema) : Json<TaskPayloadSchema>
+    ) ->Json<TaskPayloadSchema> {
         let mut payload_schemas = state.payload_schemas.lock().await;
 
-        match payload_schemas.insert(task_type, body){
-            Some(payload_schema) => Ok(Json(payload_schema)),
-            None => Err(StatusCode::SERVICE_UNAVAILABLE)
-        }
-
+        payload_schemas.insert(schema.task_type.clone() , schema.clone());
+        Json(schema)
 
     }

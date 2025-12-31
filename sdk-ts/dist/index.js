@@ -55,12 +55,16 @@ export class Client {
         const url = this.url(`/task/${id}`);
         return await this.doFetch(url, { method: "GET", headers: this.headers });
     }
-    async submitResult(id, result) {
-        const url = this.url(`/task/${id}/result`);
+    async getListTaskTypes() {
+        const url = this.url("/task/types");
         return await this.doFetch(url, {
-            method: "POST",
-            body: JSON.stringify(result),
-            headers: this.headers,
+            method: "GET", headers: this.headers
+        });
+    }
+    async getPayloadSchema(task_type) {
+        const url = this.url(`/task/${task_type}/schema`);
+        return await this.doFetch(url, {
+            method: "GET", headers: this.headers
         });
     }
     async waitForResult(id, opts) {

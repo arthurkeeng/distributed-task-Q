@@ -47,6 +47,19 @@ export declare class Client {
     private doFetch;
     createTask(task_type: string, payload: unknown): Promise<CreateTaskResponse>;
     getTask(id: UUID): Promise<Task>;
-    submitResult(id: UUID, result: SubmitResultRequest): Promise<SubmitResultResponse>;
+    getListTaskTypes(): Promise<string[]>;
+    getPayloadSchema(task_type: string): Promise<TaskPayloadSchema>;
     waitForResult(id: UUID, opts?: WaitOptions): Promise<Task>;
+}
+export type FieldType = "string" | "array" | "number" | "object" | "boolean";
+export interface TaskPayloadSchema {
+    task_type: string;
+    description: string;
+    fields: Record<string, PayloadField>;
+}
+export interface PayloadField {
+    field_type: FieldType;
+    required: boolean;
+    description?: string;
+    example?: unknown;
 }

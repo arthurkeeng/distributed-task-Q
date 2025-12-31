@@ -1,7 +1,7 @@
 use std::collections::HashMap;
 
 use base64::{Engine, engine::general_purpose};
-use common::{PayloadField, Task, TaskPayloadSchema};
+use common::{PayloadField, Task, TaskPayloadSchema , FieldType};
 use async_trait::async_trait;
 use image::GenericImageView;
 use serde_json::{Value, json};
@@ -69,7 +69,7 @@ impl ValidateImageHandler{
                 (
                     "image".to_string(), 
                     PayloadField {
-                        field_type : common::FieldType::String, 
+                        field_type : FieldType::String, 
                         required : true , 
                         description : Some("Base 64 Encoded image".to_string()), 
                         example : Some(json!("1vsdf3409l;a dl...."))

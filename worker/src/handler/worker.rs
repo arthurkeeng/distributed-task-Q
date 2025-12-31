@@ -3,7 +3,7 @@ use std::error;
 use common::{SubmitResultRequest, Task, TaskPayloadSchema};
 use tokio::time::{sleep , Duration};
 
-use crate::handler::{config::WorkerConfig, registry::{HandlerRegistry, HandlerResult}, validate_image_handler::{self, ValidateImageHandler}};
+use crate::handler::{config::WorkerConfig, echo_handler::EchoHandler, registry::{HandlerRegistry, HandlerResult}, validate_image_handler::{self, ValidateImageHandler}};
 use reqwest::Client;
 
 pub struct Worker{
@@ -90,7 +90,7 @@ impl Worker {
 
     fn schemas(&self) -> Vec<TaskPayloadSchema>{
         vec![
-            ValidateImageHandler::schema()
+            EchoHandler::schema(),
         ]
     }
 }

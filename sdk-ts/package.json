@@ -1,0 +1,17 @@
+{
+  "name": "distributed-task-queue-sdk",
+  "version": "0.1.0",
+  "type": "module",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "scripts": {
+    "build": "tsc",
+    "prepare": "npm run build"
+  },
+  "dependencies": {
+    "cross-fetch": "^4.0.8"
+  },
+  "devDependencies": {
+    "typescript": "^5.0.4"
+  }
+}

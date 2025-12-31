@@ -16,7 +16,16 @@ pub struct ValidateImageHandler;
 #[async_trait]
 impl TaskHandler for ValidateImageHandler{
     async fn handle( &self , task : &Task) -> HandlerResult{
+        // the image must be encoded in base 64
         let payload = &task.payload;
+        let payload_schema = serde_json::json!({
+            "task_type": "validate_image",
+            "description" : "This handler helps you verify if an image is truly an image",
+            "fields" : {
+                "field_type" : "string", 
+                "required" : "true"
+            }
+        });
 
         let img_b64 = match payload.get("image").and_then(|v| v.as_str()){
             Some(v) => v,

@@ -71,7 +71,7 @@ impl Worker {
             .json(&req_body)
             .send()
             .await?;
-        println!("📤 Sent result for {}", task.id);
+        println!("Sent result for {}", task.id);
         Ok(())
     }
 }

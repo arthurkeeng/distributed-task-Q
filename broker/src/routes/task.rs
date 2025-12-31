@@ -1,19 +1,23 @@
-use axum::{Json, body, extract::Path, http::StatusCode};
-use common::{ SubmitResultRequest, SubmitResultResponse, Task, TaskResult, TaskStatus};
+use axum::{Json, body, extract::{Path , State}, http::StatusCode};
+
+use common::{ SubmitResultRequest, SubmitResultResponse, Task, TaskPayloadSchema, TaskResult, TaskStatus};
 use serde_json::Value;
 use uuid::Uuid;
 
 use crate::AppState;
 
+// To create a new task , you must pass the payload this way 
+
+// {
+//     "task_type" :"name of task type", 
+//     "payload" : Value
+// }
 
 pub async fn create_task(
-    axum::extract::State(state) : axum::extract::State<AppState>,
+    State(state) : State<AppState>,
     Json(payload) : Json<Value>
 ) -> Json<Task>{
 
-    
-    // the payload will be something like 
-    // {"task_type" : "", "payload" : ""}
 
     let task_type = payload.get("task_type")
         .and_then(|v| v.as_str())
@@ -30,8 +34,8 @@ pub async fn create_task(
 
 }
 pub async fn get_task(
-    axum::extract::State(state) : axum::extract::State<AppState>,
-    axum::extract::Path(id) : axum::extract::Path<Uuid>
+    State(state) : State<AppState>,
+    Path(id) : Path<Uuid>
 ) -> Result<Json<Task> , StatusCode>{
     let task = state.tasks.lock().await;
 
@@ -42,7 +46,7 @@ pub async fn get_task(
 
 }
 pub async fn get_next_task(
-    axum::extract::State(state) : axum::extract::State<AppState>
+    State(state) : State<AppState>
 ) -> Result<Json<Task> , StatusCode>{
 
     let mut queue = state.queue.lock().await;
@@ -59,7 +63,7 @@ pub async fn get_next_task(
 }
 
 pub async fn submit_result(
-    axum::extract::State(state) : axum::extract::State<AppState>, 
+    State(state) : State<AppState>, 
     Path(id) : Path<Uuid>, 
     Json(body) : Json<SubmitResultRequest>
 ) -> Json<SubmitResultResponse>{
@@ -78,3 +82,32 @@ pub async fn submit_result(
     }
     Json(SubmitResultResponse { status: task.status.clone() })
 }
+
+pub async fn list_task_types(State(state) : State<AppState>, )
+-> Json<Vec<String>>
+{
+    let schemas = state.payload_schemas.lock().await;
+
+    Json(schemas.keys().cloned().collect())
+}
+pub async fn get_payload_schema(State(state) : State<AppState>,
+    Path(task_type ): Path<String>
+) ->Result<Json<TaskPayloadSchema>, StatusCode>{
+    let schemas = state.payload_schemas.lock().await;
+
+    schemas.get(&task_type).cloned().map(Json).ok_or(StatusCode::NOT_FOUND)
+}
+
+
+pub async fn set_payload_schema(State(state) : State<AppState> , 
+    Path(task_type ) : Path<String> , Json(body) : Json<TaskPayloadSchema>
+    ) ->Result<Json<TaskPayloadSchema> , StatusCode>{
+        let mut payload_schemas = state.payload_schemas.lock().await;
+
+        match payload_schemas.insert(task_type, body){
+            Some(payload_schema) => Ok(Json(payload_schema)),
+            None => Err(StatusCode::SERVICE_UNAVAILABLE)
+        }
+
+
+    }

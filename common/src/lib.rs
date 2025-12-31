@@ -1,3 +1,5 @@
+use std::collections::HashMap;
+
 use serde::{Serialize , Deserialize};
 use serde_json::Value;
 use uuid::Uuid;
@@ -42,7 +44,7 @@ impl Task{
               result: None, 
               created_at: Utc::now(),
                started_at: Utc::now().into(), 
-               completed_at: Utc::now().into()
+               completed_at: None
              }
     }
 
@@ -84,6 +86,27 @@ pub struct SubmitResultRequest{
 #[derive(Debug, Clone, Serialize , Deserialize)]
 pub struct SubmitResultResponse{
     pub status : TaskStatus
+}
+
+#[derive(Debug, Clone, Serialize , Deserialize)]
+pub struct TaskPayloadSchema {
+    pub task_type  : String , 
+    pub description : String , 
+    pub fields : HashMap<String , PayloadField>
+}
+
+#[derive(Debug, Clone, Serialize , Deserialize)]
+pub struct PayloadField {
+    pub field_type : FieldType , 
+    pub required : bool , 
+    pub description : Option<String >, 
+    pub example : Option<Value>
+}
+#[derive(Debug, Clone, Serialize , Deserialize)]
+#[serde(rename_all = "lowercase")]
+pub enum FieldType {
+    String , 
+    Number , Boolean , Object , Array
 }
 
 #[cfg(test)]

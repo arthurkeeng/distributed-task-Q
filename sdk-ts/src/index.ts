@@ -129,7 +129,7 @@ export class Client {
         });
     }
     async getPayloadSchema(task_type : string): Promise<TaskPayloadSchema>{
-        const url = this.url(`/task/${task_type}/schema`);
+        const url = this.url(`/task/types/${task_type}/schema`);
         
         return await this.doFetch<TaskPayloadSchema>(url , {
             method : "GET" , headers : this.headers

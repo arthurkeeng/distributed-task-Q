@@ -18,14 +18,13 @@ pub async fn create_task(
     Json(payload) : Json<Value>
 ) -> Json<Task>{
 
-
     let task_type = payload.get("task_type")
-        .and_then(|v| v.as_str())
-        .unwrap_or("default_task");
+    .and_then(|v| v.as_str())
+    .unwrap_or("default_task");
 
-    let task_payload = payload.get("payload")
-        .cloned()
-        .unwrap_or(Value::Null);
+let task_payload = payload.get("payload")
+.cloned()
+.unwrap_or(Value::Null);
 
     let task = Task::new(task_type, task_payload);
     state.tasks.lock().await.insert(task.id, task.clone());

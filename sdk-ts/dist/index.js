@@ -62,7 +62,7 @@ export class Client {
         });
     }
     async getPayloadSchema(task_type) {
-        const url = this.url(`/task/${task_type}/schema`);
+        const url = this.url(`/task/types/${task_type}/schema`);
         return await this.doFetch(url, {
             method: "GET", headers: this.headers
         });

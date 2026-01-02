@@ -91,6 +91,7 @@ impl Worker {
     fn schemas(&self) -> Vec<TaskPayloadSchema>{
         vec![
             EchoHandler::schema(),
+            ValidateImageHandler::schema()
         ]
     }
 }

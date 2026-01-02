@@ -2,7 +2,6 @@
 members = [
     "broker",
     "worker",
-    "sdk",
     "common"
 ]
 
